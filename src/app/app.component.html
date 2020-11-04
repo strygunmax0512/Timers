@@ -1,0 +1,13 @@
+<h1>
+
+  {{hour ? hour : '00'}} : {{(minutes) && (minutes <= 59) ? minutes : '00'}} : {{(seconds) && (seconds <= 59) ? seconds : '00'}} <br/>
+
+  <div *ngIf="!isActiveTimer"><button (click)="startTimer()">Start</button></div>
+  <div *ngIf="isActiveTimer"><button (click)="stopTimer()">Stop</button></div>
+
+  <div>
+    <button (click)="stopTimer()">Reset</button>
+  </div>
+  <button (click)="waitTimer()" [disabled]="!isActiveTimer" >Wait</button>
+
+</h1>
