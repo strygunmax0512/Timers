@@ -1,7 +1,7 @@
 import {Component, OnDestroy} from '@angular/core';
-import {Subscription} from 'rxjs';
+import {fromEvent, Subscription} from 'rxjs';
 import {timer} from 'rxjs';
-
+import {bufferCount, filter, map} from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -12,13 +12,13 @@ import {timer} from 'rxjs';
 export class AppComponent implements OnDestroy {
 
   times: Subscription;
+  isActiveTimer = false;
   ticks = 0;
   seconds = 0;
   minutes = 0;
   hour = 0;
-  doubleClick = 0;
-  timeDoubleClick = 0;
-  isActiveTimer = false;
+
+  tess = 0;
 
   ngOnDestroy(): void {
     this.times.unsubscribe();
@@ -42,18 +42,15 @@ export class AppComponent implements OnDestroy {
   }
 
   waitTimer(): void {
-    if (this.doubleClick < 1) {
-      this.doubleClick++;
-      this.timeDoubleClick = new Date().getTime();
-    } else {
-      if (new Date().getTime() - this.timeDoubleClick < 300) {
-        this.times.unsubscribe();
-        this.doubleClick = 0;
-        this.isActiveTimer = false;
-      } else {
-        this.doubleClick = 0;
-      }
-    }
+    fromEvent(document.querySelector('.wait'), 'click').pipe(
+      map(() => new Date().getTime()),
+      bufferCount(2, 1),
+      filter((timestamps) => {
+        return timestamps[0] > new Date().getTime() - 300;
+      })).subscribe(() => {
+      this.times.unsubscribe();
+      this.isActiveTimer = false;
+    });
   }
 
   private initialTimer(ticks: number): void {
